@@ -2,6 +2,7 @@ package com.spongebob.shardingjdbctest.db.dao;
 
 import com.spongebob.shardingjdbctest.db.mappers.SoCalShoppingShardingOrderMapper;
 import com.spongebob.shardingjdbctest.db.po.SoCalShoppingShardingOrder;
+import com.spongebob.shardingjdbctest.util.SnowflakeIdWorker;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 @SpringBootTest
@@ -21,7 +24,7 @@ class SoCalShoppingShardingOrderDaoTest {
     SoCalShoppingShardingOrderDao orderDao;
 
     @Test
-    void insertOrder() {
+     void insertOrder() {
         for (int i = 0; i < 100; i++) {
             long orderId = i + 500L;
             SoCalShoppingShardingOrder order = SoCalShoppingShardingOrder.builder()
@@ -34,7 +37,7 @@ class SoCalShoppingShardingOrderDaoTest {
                     .userId(124L)
                     .orderStatus(0)
                     .build();
-            orderDao.insertOrder(order);
+            orderDao.insert(order);
         }
     }
 
@@ -48,5 +51,31 @@ class SoCalShoppingShardingOrderDaoTest {
 //        log.info("order2:", objectMapper.writeValueAsString(onlineShoppingShardingOrder2));
         log.info("order1:{}", onlineShoppingShardingOrder1);
         log.info("order2:{}", onlineShoppingShardingOrder2);
+    }
+
+    @Test
+    void insert_order_schema_online_shopping_SnowFlake() {
+        SnowflakeIdWorker snowFlake = new SnowflakeIdWorker(1, 1); // 模拟。定死了workerid和datacenterid
+        List<SoCalShoppingShardingOrder> orders = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            long orderId = snowFlake.nextId();
+            System.out.println(orderId);
+            SoCalShoppingShardingOrder order =
+                    SoCalShoppingShardingOrder.builder()
+                            .orderStatus(0)
+                            .orderNo("123")
+                            .orderId(orderId)
+                            .orderAmount(123L)
+                            .commodityId(123L)
+                            .createTime(new Date())
+                            .payTime(new Date())
+                            .userId(124L)
+                            .orderStatus(0)
+                            .build();
+            orders.add(order);
+        }
+        for (int i = 0; i < 100; i++) {
+            orderDao.insertSharding(orders.get(i));
+        }
     }
 }

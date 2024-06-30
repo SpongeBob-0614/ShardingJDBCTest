@@ -17,12 +17,17 @@ public class SoCalShoppingShardingOrderDaoImpl implements SoCalShoppingShardingO
     private SoCalShoppingShardingOrderMapper mapper;
 
     @Override
-    public int insertOrder(SoCalShoppingShardingOrder order) {
+    public int insert(SoCalShoppingShardingOrder order) {
         return mapper.insert(order);
     }
 
     @Override
     public SoCalShoppingShardingOrder queryOrder(Long orderId, Long userId) {
         return mapper.queryOrder(orderId,userId);
+    }
+
+    @Override
+    public int insertSharding(SoCalShoppingShardingOrder order) {
+        return mapper.insertSharding(order);
     }
 }
