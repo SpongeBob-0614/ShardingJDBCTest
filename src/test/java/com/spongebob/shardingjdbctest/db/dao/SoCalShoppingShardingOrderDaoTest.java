@@ -1,5 +1,6 @@
 package com.spongebob.shardingjdbctest.db.dao;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spongebob.shardingjdbctest.db.mappers.SoCalShoppingShardingOrderMapper;
 import com.spongebob.shardingjdbctest.db.po.SoCalShoppingShardingOrder;
 import com.spongebob.shardingjdbctest.util.SnowflakeIdWorker;
@@ -23,6 +24,9 @@ class SoCalShoppingShardingOrderDaoTest {
     @Resource
     SoCalShoppingShardingOrderDao orderDao;
 
+    ObjectMapper objectMapper = new ObjectMapper(); // java对象转json字符串
+
+
     @Test
      void insertOrder() {
         for (int i = 0; i < 100; i++) {
@@ -40,6 +44,28 @@ class SoCalShoppingShardingOrderDaoTest {
             orderDao.insert(order);
         }
     }
+
+    @Test
+    void insert_order_schema_online_shopping_2() {
+        for (int i = 0; i < 100; i++) {
+            long orderId = i + 100L;
+            SoCalShoppingShardingOrder order =
+                    SoCalShoppingShardingOrder.builder()
+                            .orderStatus(0)
+                            .orderNo("123")
+                            .orderId(orderId)
+                            .orderAmount(123L)
+                            .commodityId(123L)
+                            .createTime(new Date())
+                            .payTime(new Date())
+                            .userId(123L)
+                            .orderStatus(0)
+                            .build();
+
+            orderDao.insertSharding(order);
+        }
+    }
+
 
 
     @Test
